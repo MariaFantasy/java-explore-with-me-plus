@@ -4,6 +4,7 @@ Template repository for ExploreWithMe project.
 ---
 
 ## Комментарии
+Комментарии реализованы на примере TripAdvisor.
 
 ```mermaid
 erDiagram
@@ -13,6 +14,7 @@ erDiagram
         bigint author_id FK
         string(120) title
         string(2000) text
+        float rate
         datetime created_on
         datetime updated_on "Nullable"
     }
