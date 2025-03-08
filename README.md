@@ -14,7 +14,7 @@ erDiagram
         bigint author_id FK
         string(120) title
         string(2000) text
-        float rate
+        float rate "Nullable"
         datetime created_on
         datetime updated_on "Nullable"
     }
