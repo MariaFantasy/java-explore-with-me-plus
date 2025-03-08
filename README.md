@@ -9,7 +9,7 @@ Template repository for ExploreWithMe project.
 erDiagram
     comments {
         bigint id PK
-        bigint event_id name FK
+        bigint event_id FK
         bigint author_id FK
         string(120) title
         string(2000) text
