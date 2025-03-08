@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.comment.service.CommentService;
 
 @RestController
-@RequestMapping("/comments")
+@RequestMapping("/events/{eventId}/comments")
 @Slf4j
 @RequiredArgsConstructor
 public class PublicCommentController {
