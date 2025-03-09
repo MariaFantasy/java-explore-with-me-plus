@@ -1,25 +1,14 @@
 package ru.practicum.location.mapper;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import ru.practicum.location.dto.LocationDto;
 import ru.practicum.location.model.Location;
 
-@Component
-public class LocationDtoMapper {
-    public LocationDto mapToDto(Location location) {
-        final LocationDto locationDto = new LocationDto(
-                location.getLat(),
-                location.getLon()
-        );
-        return locationDto;
-    }
+@Mapper(componentModel = "spring")
+public interface LocationDtoMapper {
+    LocationDto mapToDto(Location location);
 
-    public Location mapFromDto(LocationDto locationDto) {
-        final Location location = new Location(
-                null,
-                locationDto.getLat(),
-                locationDto.getLon()
-        );
-        return location;
-    }
+    @Mapping(target = "id", ignore = true)
+    Location mapFromDto(LocationDto locationDto);
 }

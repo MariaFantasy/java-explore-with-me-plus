@@ -34,9 +34,9 @@ public class Comment {
     @JoinColumn(name = "reply_on_id")
     private Comment replyOn;
 
-    @OneToMany
-    @JoinColumn(name = "reply_on_id")
-    private Comment replies;
+//    @OneToMany
+//    @JoinColumn(name = "reply_on_id")
+//    private Comment replies;
 
     @Column(name = "text", length = 2000)
     private String text;

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Formula;
 import ru.practicum.category.model.Category;
 import ru.practicum.location.model.Location;
 import ru.practicum.user.model.User;
@@ -68,4 +69,6 @@ public class Event {
 
     @Column(name = "published_on")
     private LocalDateTime publishedOn;
+
+    private Long views;
 }
