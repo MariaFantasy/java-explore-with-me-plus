@@ -93,7 +93,7 @@ erDiagram
     <tr>
         <td>Запрос обработан успешно</td>
         <td>200 OK</td>
-        <td>ommentDto</td>
+        <td>CommentDto</td>
     </tr>
     <tr>
         <td>Запрос составлен некорректно</td>
@@ -101,7 +101,7 @@ erDiagram
         <td>ApiError</td>
     </tr>
     <tr>
-        <td>Клиент не найдено</td>
+        <td>Клиент не найден</td>
         <td>404 Not Found</td>
         <td>ApiError</td>
     </tr>
@@ -114,40 +114,108 @@ erDiagram
 Параметры:
 ```  
 
-  - eventId - Id события, к которому нужно вернуть комментарии
+  - userId - Id клиента, который создает комментарий
 
 ```  
 Тело запроса:
-```  
+```
+
+NewCommentDto
+
+<table>
+    <tr>
+        <td>event</td>
+        <td>Id события, к которому создается комментарий</td>
+        <td>Обязательный параметр</td>
+    </tr>
+    <tr>
+        <td>replyOn</td>
+        <td>Id комментария, на который дается ответ</td>
+        <td>Необязательный параметр</td>
+    </tr>
+    <tr>
+        <td>text</td>
+        <td>Текст комментария</td>
+        <td>Обязательный параметр</td>
+    </tr>
+</table>
 
 ```  
 Статусы ответов:
-```  
+```
 
-  - 201 OK + тело ответа в формате CommentDto
-  - 400 Bad Request + тело ответа в формате ApiError
-  - 404 Not Found + тело ответа в формате ApiError
+<table>
+    <tr>
+        <th>Описание</th>
+        <th>Код ответа</th>
+        <th>Тело ответа</th>
+    </tr>
+    <tr>
+        <td>Запрос обработан успешно</td>
+        <td>201 CREATED</td>
+        <td>CommentDto</td>
+    </tr>
+    <tr>
+        <td>Запрос составлен некорректно</td>
+        <td>400 Bad Request</td>
+        <td>ApiError</td>
+    </tr>
+    <tr>
+        <td>Комментарий или пользователь не найден</td>
+        <td>404 Not Found</td>
+        <td>ApiError</td>
+    </tr>
+</table>
 
-###### PATCH ```/events/{eventId}/comments/{commentId}/reply``` - Обновление комментария
+###### PATCH ```/users/{userId}/comments/{commentId}``` - Обновление комментария
     
 ```  
 Параметры:
 ```  
 
-  - eventId - Id события, к которому нужно вернуть комментарии
+  - userId - Id клиента, который создает комментарий
   - commentId - Id комментария, к которому нужно оставить комментарии
     
 ```  
 Тело запроса:
-```  
+```
+
+UpdateCommentDto
+
+<table>
+    <tr>
+        <td>text</td>
+        <td>Текст комментария</td>
+        <td>Обязательный параметр</td>
+    </tr>
+</table>
 
 ```  
 Статусы ответов:
 ```  
 
-  - 201 OK + тело ответа в формате CommentDto
-  - 400 Bad Request + тело ответа в формате ApiError
-  - 404 Not Found + тело ответа в формате ApiError
+<table>
+    <tr>
+        <th>Описание</th>
+        <th>Код ответа</th>
+        <th>Тело ответа</th>
+    </tr>
+    <tr>
+        <td>Запрос обработан успешно</td>
+        <td>200 OK</td>
+        <td>CommentDto</td>
+    </tr>
+    <tr>
+        <td>Запрос составлен некорректно</td>
+        <td>400 Bad Request</td>
+        <td>ApiError</td>
+    </tr>
+    <tr>
+        <td>Комментарий или пользователь не найден</td>
+        <td>404 Not Found</td>
+        <td>ApiError</td>
+    </tr>
+</table>
 
 
 ###### DELETE ```/users/{userId}/comments/{commentId}``` - Удаление комментария
