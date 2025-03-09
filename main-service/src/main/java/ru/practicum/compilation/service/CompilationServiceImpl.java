@@ -12,7 +12,7 @@ import ru.practicum.compilation.mapper.CompilationMapper;
 import ru.practicum.compilation.model.Compilation;
 import ru.practicum.compilation.repository.CompilationRepository;
 import ru.practicum.event.dto.EventShortDto;
-import ru.practicum.event.mapper.EventMapper;
+import ru.practicum.event.mapper.EventDtoMapper;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.storage.EventRepository;
 import ru.practicum.exception.NotFoundException;
@@ -27,13 +27,14 @@ import java.util.stream.Collectors;
 public class CompilationServiceImpl implements CompilationService {
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
+    private final CompilationMapper compilationMapper;
+    private final EventDtoMapper eventDtoMapper;
 
     @Transactional
     @Override
     public CompilationDto addCompilation(NewCompilationDto newCompilationDto) {
         log.info("Добавление подборки {}", newCompilationDto.toString());
-        Compilation compilation = CompilationMapper.toCompilation(newCompilationDto,
-                Collections.emptyList());
+        Compilation compilation = compilationMapper.toCompilation(newCompilationDto);
 
         compilation.setPinned(Optional.ofNullable(compilation.getPinned()).orElse(false));
 
@@ -44,11 +45,8 @@ public class CompilationServiceImpl implements CompilationService {
 
         Compilation savedCompilation = compilationRepository.save(compilation);
         log.info("Подборка добавлена: {}", savedCompilation);
-        List<EventShortDto> eventShortDtos = events.stream()
-                .map(EventMapper::toEventShortDto)
-                .collect(Collectors.toList());
 
-        return CompilationMapper.toCompilationDto(savedCompilation, eventShortDtos);
+        return compilationMapper.toCompilationDto(savedCompilation);
 
     }
 
@@ -70,11 +68,8 @@ public class CompilationServiceImpl implements CompilationService {
         compilation.setTitle(Optional.ofNullable(updateCompilationRequest.getTitle()).orElse(compilation.getTitle()));
         Compilation updatedCompilation = compilationRepository.save(compilation);
         log.info("Подборка обновлена: {}", compilation);
-        List<EventShortDto> eventShortDtos = updatedCompilation.getEvents().stream()
-                .map(EventMapper::toEventShortDto)
-                .collect(Collectors.toList());
 
-        return CompilationMapper.toCompilationDto(updatedCompilation, eventShortDtos);
+        return compilationMapper.toCompilationDto(updatedCompilation);
     }
 
     @Transactional
@@ -104,10 +99,10 @@ public class CompilationServiceImpl implements CompilationService {
         return compilations.stream()
                 .map(compilation -> {
                     List<EventShortDto> eventShortDtos = compilation.getEvents().stream()
-                            .map(EventMapper::toEventShortDto)
+                            .map(eventDtoMapper::mapToShortDto)
                             .collect(Collectors.toList());
 
-                    return CompilationMapper.toCompilationDto(compilation, eventShortDtos);
+                    return compilationMapper.toCompilationDto(compilation);
                 })
                 .collect(Collectors.toList());
     }
@@ -118,11 +113,7 @@ public class CompilationServiceImpl implements CompilationService {
         Compilation compilation = validateCompilation(compId);
         log.info("Подборка найдена: {}", compilation);
 
-        List<EventShortDto> eventShortDtos = compilation.getEvents().stream()
-                .map(EventMapper::toEventShortDto)
-                .collect(Collectors.toList());
-
-        return CompilationMapper.toCompilationDto(compilation, eventShortDtos);
+        return compilationMapper.toCompilationDto(compilation);
     }
 
     private Compilation validateCompilation(Long compId) {
