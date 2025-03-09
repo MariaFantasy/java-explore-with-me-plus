@@ -9,6 +9,7 @@ import ru.practicum.event.model.Event;
 import ru.practicum.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "comments")
@@ -34,9 +35,8 @@ public class Comment {
     @JoinColumn(name = "reply_on_id")
     private Comment replyOn;
 
-//    @OneToMany
-//    @JoinColumn(name = "reply_on_id")
-//    private Comment replies;
+    @OneToMany(mappedBy = "replyOn")
+    private List<Comment> replies;
 
     @Column(name = "text", length = 2000)
     private String text;
