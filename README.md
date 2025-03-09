@@ -40,6 +40,7 @@ erDiagram
 ```
 Статусы ответов:
 ```
+
 <table>
     <tr>
         <th>Описание</th>
@@ -69,25 +70,42 @@ erDiagram
 
 ###### GET ```/users/{userId}/comments``` - Просмотр всех комментариев пользователя
 
+- Сортировка по убвыванию даты создания сообщения
 
 ```  
 Параметры:
 ```
 
-  - eventId - Id события, к которому нужно вернуть комментарии
-
-```  
-Тело запроса:
-```
-
+  - userId - Id клиента, чьи комментарии нужно вернуть
+  - from - Количество коментариев, которые нужно пропустить для форматирования текущего набора. Default value: 0
+  - size - Количество коментариев в наборе. Default value: 10
 
 ```  
 Статусы ответов:
 ```  
 
-  - 201 OK + тело ответа в формате CommentDto
-  - 400 Bad Request + тело ответа в формате ApiError
-  - 404 Not Found + тело ответа в формате ApiError
+<table>
+    <tr>
+        <th>Описание</th>
+        <th>Код ответа</th>
+        <th>Тело ответа</th>
+    </tr>
+    <tr>
+        <td>Запрос обработан успешно</td>
+        <td>200 OK</td>
+        <td>ommentDto</td>
+    </tr>
+    <tr>
+        <td>Запрос составлен некорректно</td>
+        <td>400 Bad Request</td>
+        <td>ApiError</td>
+    </tr>
+    <tr>
+        <td>Клиент не найдено</td>
+        <td>404 Not Found</td>
+        <td>ApiError</td>
+    </tr>
+</table>
 
 
 ###### POST ```/users/{userId}/comments``` - Добавление комментария к событию
@@ -110,27 +128,6 @@ erDiagram
   - 400 Bad Request + тело ответа в формате ApiError
   - 404 Not Found + тело ответа в формате ApiError
 
-###### POST ```/users/{userId}/comments/{commentId}/reply``` - Добавление ответа к комментарию к событию
-    
-```  
-Параметры:
-```  
-
-  - eventId - Id события, к которому нужно вернуть комментарии
-  - commentId - Id комментария, к которому нужно оставить комментарии
-    
-```  
-Тело запроса:
-```  
-
-```  
-Статусы ответов:
-```  
-
-  - 201 OK + тело ответа в формате CommentDto
-  - 400 Bad Request + тело ответа в формате ApiError
-  - 404 Not Found + тело ответа в формате ApiError
-
 ###### PATCH ```/events/{eventId}/comments/{commentId}/reply``` - Обновление комментария
     
 ```  
@@ -153,70 +150,75 @@ erDiagram
   - 404 Not Found + тело ответа в формате ApiError
 
 
-###### DELETE ```/events/{eventId}/comments/{commentId}/reply``` - Удаление комментария
+###### DELETE ```/users/{userId}/comments/{commentId}``` - Удаление комментария
+
+- Удалить комментарий может только автор
     
 ```  
 Параметры:
-```  
+```
 
-  - eventId - Id события, к которому нужно вернуть комментарии
   - commentId - Id комментария, к которому нужно оставить комментарии
-    
-```  
-Тело запроса:
-```  
 
 ```  
 Статусы ответов:
 ```  
 
-  - 201 OK + тело ответа в формате CommentDto
-  - 400 Bad Request + тело ответа в формате ApiError
-  - 404 Not Found + тело ответа в формате ApiError
+<table>
+    <tr>
+        <th>Описание</th>
+        <th>Код ответа</th>
+        <th>Тело ответа</th>
+    </tr>
+    <tr>
+        <td>Запрос обработан успешно</td>
+        <td>204 NO_CONTENT</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Запрос составлен некорректно</td>
+        <td>400 Bad Request</td>
+        <td>ApiError</td>
+    </tr>
+    <tr>
+        <td>Комментарий или пользователь не найден</td>
+        <td>404 Not Found</td>
+        <td>ApiError</td>
+    </tr>
+</table>
+
 
 ---
 #### Admin
 ---
 
-###### PATCH ```/events/{eventId}/comments/{commentId}/reply``` - Обновление комментария
+
+###### DELETE ```/admin/comments/{commentId}``` - Удаление комментария
     
 ```  
 Параметры:
-```  
+```
 
-  - eventId - Id события, к которому нужно вернуть комментарии
   - commentId - Id комментария, к которому нужно оставить комментарии
-    
-```  
-Тело запроса:
-```  
 
 ```  
 Статусы ответов:
 ```  
 
-  - 201 OK + тело ответа в формате CommentDto
-  - 400 Bad Request + тело ответа в формате ApiError
-  - 404 Not Found + тело ответа в формате ApiError
-
-
-###### DELETE ```/events/{eventId}/comments/{commentId}/reply``` - Удаление комментария
-    
-```  
-Параметры:
-```  
-
-  - eventId - Id события, к которому нужно вернуть комментарии
-  - commentId - Id комментария, к которому нужно оставить комментарии
-    
-```  
-Тело запроса:
-```  
-
-```  
-Статусы ответов:
-```  
-
-  - 201 OK + тело ответа в формате CommentDto
-  - 400 Bad Request + тело ответа в формате ApiError
-  - 404 Not Found + тело ответа в формате ApiError
+<table>
+    <tr>
+        <th>Описание</th>
+        <th>Код ответа</th>
+        <th>Тело ответа</th>
+    </tr>
+    <tr>
+        <td>Запрос обработан успешно</td>
+        <td>204 NO_CONTENT</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Комментарий не найден</td>
+        <td>404 Not Found</td>
+        <td>ApiError</td>
+    </tr>
+</table>
