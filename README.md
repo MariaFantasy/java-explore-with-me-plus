@@ -20,8 +20,9 @@ erDiagram
 ```
 
 ### Доступные эндпоинты
+---
 #### Public
-
+---
 1. GET ```/events/{eventId}/comments``` - Просмотр комментариев на событии
   - Если событие не найдено, возвращает ошибку 404
   - Событие должно быть опубликовано
@@ -37,9 +38,9 @@ erDiagram
   - 200 OK + тело ответа в формате CommentDto
   - 400 Bad Request + тело ответа в формате ApiError
   - 404 Not Found + тело ответа в формате ApiError
-
+---
 #### Private
-
+---
 1. GET ```/users/{userId}/comments``` - Просмотр всех комментариев пользователя
     
 Параметры:
@@ -114,7 +115,9 @@ erDiagram
   - 400 Bad Request + тело ответа в формате ApiError
   - 404 Not Found + тело ответа в формате ApiError
 
+---
 #### Admin
+---
 
 1. GET ```/users/{userId}/comments``` - Просмотр всех комментариев по фильтрам
     
