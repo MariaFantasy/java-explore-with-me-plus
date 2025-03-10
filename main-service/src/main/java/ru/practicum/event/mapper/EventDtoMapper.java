@@ -33,6 +33,11 @@ public interface EventDtoMapper {
     @Mapping(target = "views", expression = "java(0L)")
     Event mapFromDto(NewEventDto newEventDto);
 
+    @Mapping(target = "eventDate", source = "eventDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(target = "createdOn", source = "createdOn", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(target = "publishedOn", source = "publishedOn", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    Event mapFromDto(EventFullDto eventFullDto);
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "category.id", source = "category")

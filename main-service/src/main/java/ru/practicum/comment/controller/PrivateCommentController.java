@@ -32,6 +32,7 @@ public class PrivateCommentController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public CommentDto create(
             @PathVariable Long userId,
             @RequestBody @Valid NewCommentDto commentDto
@@ -42,10 +43,10 @@ public class PrivateCommentController {
         return comment;
     }
 
-    @PatchMapping
+    @PatchMapping("/{commentId}")
     public CommentDto update(
             @PathVariable Long userId,
-            @RequestParam Long commentId,
+            @PathVariable Long commentId,
             @RequestBody @Valid UpdateCommentDto commentDto
     ) {
         log.info("Пришел PATCH запрос /users/{}/comments/{} с телом {}", userId, commentId, commentDto);

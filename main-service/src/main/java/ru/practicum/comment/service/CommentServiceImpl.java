@@ -11,11 +11,15 @@ import ru.practicum.comment.mapper.CommentDtoMapper;
 import ru.practicum.comment.model.Comment;
 import ru.practicum.comment.repository.CommentRepository;
 import ru.practicum.event.dto.EventFullDto;
+import ru.practicum.event.mapper.EventDtoMapper;
+import ru.practicum.event.model.Event;
 import ru.practicum.event.model.State;
 import ru.practicum.event.service.EventService;
 import ru.practicum.exception.IncorrectRequestException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.user.dto.UserDto;
+import ru.practicum.user.mapper.UserDtoMapper;
+import ru.practicum.user.model.User;
 import ru.practicum.user.service.UserService;
 
 import java.util.ArrayList;
@@ -29,11 +33,26 @@ public class CommentServiceImpl implements CommentService {
     private final UserService userService;
     private final CommentRepository commentRepository;
     private final CommentDtoMapper commentDtoMapper;
+    private final UserDtoMapper userDtoMapper;
+    private final EventDtoMapper eventDtoMapper;
 
     @Override
     public CommentDto create(Long userId, NewCommentDto commentDto) {
+        final UserDto userDto = userService.findById(userId);
+        final User user = userDtoMapper.mapFromDto(userDto);
+        final EventFullDto eventDto = eventService.findById(userId, commentDto.getEvent(), false, null);
+        final Event event = eventDtoMapper.mapFromDto(eventDto);
+
         final Comment comment = commentDtoMapper.mapFromDto(commentDto);
+        comment.setAuthor(user);
+        comment.setEvent(event);
+        if (commentDto.getReplyOn() != null) {
+            final Comment replyOnComment = findById(commentDto.getReplyOn());
+            comment.setReplyOn(replyOnComment);
+        }
+
         final Comment createdComment = commentRepository.save(comment);
+
         return commentDtoMapper.mapToDto(createdComment);
     }
 

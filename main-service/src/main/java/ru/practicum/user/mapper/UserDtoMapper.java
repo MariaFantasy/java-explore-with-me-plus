@@ -17,4 +17,7 @@ public interface UserDtoMapper {
     User mapFromDto(NewUserRequest newUserRequest);
 
     User mapFromDto(UserDto userDto);
+
+    @Mapping(target = "email", ignore = true)
+    User mapFromDto(UserShortDto userDto);
 }

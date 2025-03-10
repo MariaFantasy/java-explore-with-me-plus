@@ -16,7 +16,7 @@ public interface CommentDtoMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "event.id", source = "event")
     @Mapping(target = "author", ignore = true)
-    @Mapping(target = "replyOn.id", source = "replyOn")
+    @Mapping(target = "replyOn", ignore = true)
     @Mapping(target = "replies", ignore = true)
     @Mapping(target = "createdOn", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "updatedOn", ignore = true)
