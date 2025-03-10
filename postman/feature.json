@@ -476,7 +476,7 @@
 							"        const category = await api.addCategory(rnd.getCategory());\r",
 							"        let event = await api.addEvent(user.id, rnd.getEvent(category.id));\r",
 							"        event = await api.publishEvent(event.id);\r",
-							"        pm.collectionVariables.set(\"userId\", event.id)\r",
+							"        pm.collectionVariables.set(\"userId\", user.id)\r",
 							"        let comment = await api.addComment(user.id, rnd.getComment(event.id));\r",
 							"    } catch(err) {\r",
 							"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
