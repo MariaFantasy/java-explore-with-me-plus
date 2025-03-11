@@ -15,7 +15,7 @@ public class AdminCommentController {
 
     @DeleteMapping("/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void create(@PathVariable Long commentId) {
+    public void delete(@PathVariable Long commentId) {
         log.info("Пришел DELETE запрос /admin/comments/{}", commentId);
         commentService.delete(null, commentId);
         log.info("Отправлен ответ DELETE /admin/comments/{}", commentId);
