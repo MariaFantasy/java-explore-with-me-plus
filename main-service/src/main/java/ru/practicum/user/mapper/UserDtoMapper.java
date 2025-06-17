@@ -1,45 +1,23 @@
 package ru.practicum.user.mapper;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import ru.practicum.user.dto.NewUserRequest;
 import ru.practicum.user.dto.UserDto;
 import ru.practicum.user.dto.UserShortDto;
 import ru.practicum.user.model.User;
 
-@Component
-public class UserDtoMapper {
-    public UserDto mapToDto(User user) {
-        final UserDto userDto = new UserDto(
-                user.getEmail(),
-                user.getId(),
-                user.getName()
-        );
-        return userDto;
-    }
+@Mapper(componentModel = "spring")
+public interface UserDtoMapper {
+    UserDto mapToDto(User user);
 
-    public UserShortDto mapToShortDto(User user) {
-        final UserShortDto userDto = new UserShortDto(
-                user.getId(),
-                user.getName()
-        );
-        return userDto;
-    }
+    UserShortDto mapToShortDto(User user);
 
-    public User mapFromDto(NewUserRequest newUserRequest) {
-        final User user = new User(
-                null,
-                newUserRequest.getEmail(),
-                newUserRequest.getName()
-        );
-        return user;
-    }
+    @Mapping(target = "id", ignore = true)
+    User mapFromDto(NewUserRequest newUserRequest);
 
-    public User mapFromDto(UserDto userDto) {
-        final User user = new User(
-                userDto.getId(),
-                userDto.getEmail(),
-                userDto.getName()
-        );
-        return user;
-    }
+    User mapFromDto(UserDto userDto);
+
+    @Mapping(target = "email", ignore = true)
+    User mapFromDto(UserShortDto userDto);
 }

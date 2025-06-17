@@ -1,177 +1,64 @@
 package ru.practicum.event.mapper;
 
-import org.springframework.stereotype.Component;
-import ru.practicum.category.dto.CategoryDto;
-import ru.practicum.category.model.Category;
+import org.mapstruct.*;
+import ru.practicum.category.mapper.CategoryDtoMapper;
 import ru.practicum.event.dto.*;
 import ru.practicum.event.model.Event;
-import ru.practicum.event.model.StateAction;
-import ru.practicum.location.dto.LocationDto;
-import ru.practicum.location.model.Location;
-import ru.practicum.event.model.State;
-import ru.practicum.user.dto.UserShortDto;
-import ru.practicum.user.model.User;
+import ru.practicum.location.mapper.LocationDtoMapper;
+import ru.practicum.user.mapper.UserDtoMapper;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+@Mapper(componentModel = "spring", uses = {
+        CategoryDtoMapper.class,
+        UserDtoMapper.class,
+        LocationDtoMapper.class
+})
+public interface EventDtoMapper {
 
-@Component
-public class EventDtoMapper {
-    final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    @Mapping(target = "eventDate", source = "eventDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(target = "createdOn", source = "createdOn", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(target = "publishedOn", source = "publishedOn", dateFormat = "yyyy-MM-dd HH:mm:ss", ignore = true)
+    EventFullDto mapToFullDto(Event event);
 
-    public EventFullDto mapToFullDto(
-            Event event,
-            CategoryDto categoryDto,
-            LocationDto locationDto,
-            UserShortDto initiatorDto,
-            Long views
-    ) {
-        final EventFullDto eventFullDto = new EventFullDto(
-                event.getAnnotation(),
-                categoryDto,
-                event.getConfirmedRequests(),
-                event.getCreatedOn().format(formatter),
-                event.getPublishedOn() == null ? null : event.getPublishedOn().format(formatter),
-                event.getDescription(),
-                event.getEventDate().format(formatter),
-                event.getId(),
-                initiatorDto,
-                locationDto,
-                event.getPaid(),
-                event.getParticipantLimit(),
-                event.getRequestModeration(),
-                event.getState(),
-                event.getTitle(),
-                views
-        );
-        return eventFullDto;
-    }
+    @Mapping(target = "eventDate", source = "eventDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    EventShortDto mapToShortDto(Event event);
 
-    public EventShortDto mapToShortDto(
-            Event event,
-            CategoryDto categoryDto,
-            UserShortDto initiatorDto,
-            Long views
-    ) {
-        final EventShortDto eventShortDto = new EventShortDto(
-                event.getAnnotation(),
-                categoryDto,
-                event.getConfirmedRequests(),
-                event.getEventDate().format(formatter),
-                event.getId(),
-                initiatorDto,
-                event.getPaid(),
-                event.getTitle(),
-                views
-        );
-        return eventShortDto;
-    }
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "category.id", source = "category")
+    @Mapping(target = "initiator", ignore = true)
+    @Mapping(target = "confirmedRequests", expression = "java(0L)")
+    @Mapping(target = "state", expression = "java(ru.practicum.event.model.State.PENDING)")
+    @Mapping(target = "eventDate", source = "eventDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(target = "createdOn", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "publishedOn", ignore = true)
+    @Mapping(target = "views", expression = "java(0L)")
+    Event mapFromDto(NewEventDto newEventDto);
 
-    public Event mapFromDto(
-            NewEventDto newEventDto,
-            Category category,
-            Location location,
-            User initiator
-    ) {
-        final Event event = new Event(
-                null,
-                initiator,
-                newEventDto.getTitle(),
-                newEventDto.getAnnotation(),
-                newEventDto.getDescription(),
-                category,
-                location,
-                LocalDateTime.parse(newEventDto.getEventDate(), formatter),
-                newEventDto.getPaid(),
-                newEventDto.getRequestModeration(),
-                newEventDto.getParticipantLimit(),
-                0L,
-                State.PENDING,
-                LocalDateTime.now(),
-                null
-        );
-        return event;
-    }
+    @Mapping(target = "eventDate", source = "eventDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(target = "createdOn", source = "createdOn", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(target = "publishedOn", source = "publishedOn", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    Event mapFromDto(EventFullDto eventFullDto);
 
-    public void updateFromDto(
-            Event event,
-            UpdateEventUserRequest eventDto,
-            Category category,
-            Location location
-    ) {
-        if (eventDto.getAnnotation() != null) {
-            event.setAnnotation(eventDto.getAnnotation());
-        }
-        if (eventDto.getDescription() != null) {
-            event.setDescription(eventDto.getDescription());
-        }
-        if (eventDto.getEventDate() != null) {
-            event.setEventDate(LocalDateTime.parse(eventDto.getEventDate(), formatter));
-        }
-        if (eventDto.getPaid() != null) {
-            event.setPaid(eventDto.getPaid());
-        }
-        if (eventDto.getParticipantLimit() != null) {
-            event.setParticipantLimit(eventDto.getParticipantLimit());
-        }
-        if (eventDto.getRequestModeration() != null) {
-            event.setRequestModeration(eventDto.getRequestModeration());
-        }
-        if (eventDto.getStateAction() != null && eventDto.getStateAction() == StateAction.SEND_TO_REVIEW) {
-            event.setState(State.PENDING);
-        }
-        if (eventDto.getStateAction() != null && eventDto.getStateAction() == StateAction.CANCEL_REVIEW) {
-            event.setState(State.CANCELED);
-        }
-        if (eventDto.getTitle() != null) {
-            event.setTitle(eventDto.getTitle());
-        }
-        if (category != null) {
-            event.setCategory(category);
-        }
-        if (location != null) {
-            event.setLocation(location);
-        }
-    }
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "category.id", source = "category")
+    @Mapping(target = "initiator", ignore = true)
+    @Mapping(target = "confirmedRequests", ignore = true)
+    @Mapping(target = "state", expression = "java((eventDto.getStateAction() != null && eventDto.getStateAction().equals(ru.practicum.event.model.StateAction.SEND_TO_REVIEW)) ? ru.practicum.event.model.State.PENDING : ru.practicum.event.model.State.CANCELED)")
+    @Mapping(target = "eventDate", source = "eventDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(target = "createdOn", ignore = true)
+    @Mapping(target = "publishedOn", ignore = true)
+    @Mapping(target = "views", ignore = true)
+    void updateFromDto(@MappingTarget Event event, UpdateEventUserRequest eventDto);
 
-    public void updateFromDto(
-            Event event,
-            UpdateEventAdminRequest eventDto,
-            Category category,
-            Location location
-    ) {
-        if (eventDto.getAnnotation() != null) {
-            event.setAnnotation(eventDto.getAnnotation());
-        }
-        if (eventDto.getDescription() != null) {
-            event.setDescription(eventDto.getDescription());
-        }
-        if (eventDto.getEventDate() != null) {
-            event.setEventDate(LocalDateTime.parse(eventDto.getEventDate(), formatter));
-        }
-        if (eventDto.getPaid() != null) {
-            event.setPaid(eventDto.getPaid());
-        }
-        if (eventDto.getParticipantLimit() != null) {
-            event.setParticipantLimit(eventDto.getParticipantLimit());
-        }
-        if (eventDto.getRequestModeration() != null) {
-            event.setRequestModeration(eventDto.getRequestModeration());
-        }
-        if (eventDto.getStateAction() != null && eventDto.getStateAction() == StateAction.PUBLISH_EVENT) {
-            event.setState(State.PUBLISHED);
-        }
-        if (eventDto.getStateAction() != null && eventDto.getStateAction() == StateAction.REJECT_EVENT) {
-            event.setState(State.CANCELED);
-        }
-        if (eventDto.getTitle() != null) {
-            event.setTitle(eventDto.getTitle());
-        }
-        if (category != null) {
-            event.setCategory(category);
-        }
-        if (location != null) {
-            event.setLocation(location);
-        }
-    }
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "category.id", source = "category")
+    @Mapping(target = "initiator", ignore = true)
+    @Mapping(target = "confirmedRequests", ignore = true)
+    @Mapping(target = "state", expression = "java((eventDto.getStateAction() != null && eventDto.getStateAction().equals(ru.practicum.event.model.StateAction.PUBLISH_EVENT)) ? ru.practicum.event.model.State.PUBLISHED : ru.practicum.event.model.State.CANCELED)")
+    @Mapping(target = "eventDate", source = "eventDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(target = "createdOn", ignore = true)
+    @Mapping(target = "publishedOn", ignore = true)
+    @Mapping(target = "views", ignore = true)
+    void updateFromDto(@MappingTarget Event event, UpdateEventAdminRequest eventDto);
 }

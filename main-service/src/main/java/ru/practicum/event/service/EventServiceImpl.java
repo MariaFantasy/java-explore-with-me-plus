@@ -65,20 +65,13 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventFullDto create(Long userId, NewEventDto eventDto) {
         final User user = findUserById(userId);
-        final Category category = findCategoryById(eventDto.getCategory());
-        final Location location = saveLocation(eventDto.getLocation());
 
         validateEventDate(eventDto.getEventDate());
-        final Event event = eventDtoMapper.mapFromDto(eventDto, category, location, user);
+        final Event event = eventDtoMapper.mapFromDto(eventDto);
+        event.setInitiator(user);
         final Event createdEvent = eventRepository.save(event);
 
-        return eventDtoMapper.mapToFullDto(
-                createdEvent,
-                categoryDtoMapper.mapToDto(event.getCategory()),
-                locationDtoMapper.mapToDto(event.getLocation()),
-                userDtoMapper.mapToShortDto(event.getInitiator()),
-                0L
-        );
+        return eventDtoMapper.mapToFullDto(createdEvent);
     }
 
     @Override
@@ -92,13 +85,11 @@ public class EventServiceImpl implements EventService {
         saveView(request);
         final Collection<Event> events = eventRepository.findAllByPublic(text, categories, paid, rangeStart == null ? null : LocalDateTime.parse(rangeStart, formatter), rangeEnd == null ? null : LocalDateTime.parse(rangeEnd, formatter), onlyAvailable, (Pageable) PageRequest.of(from, size));
         return events.stream()
-                .map(event -> eventDtoMapper.mapToShortDto(
-                        event,
-                        categoryDtoMapper.mapToDto(event.getCategory()),
-                        userDtoMapper.mapToShortDto(event.getInitiator()),
-                        countViews(event.getId(), event.getCreatedOn(), LocalDateTime.now())
-
-                ))
+                .map(event -> {
+                    final EventShortDto eventDto = eventDtoMapper.mapToShortDto(event);
+                    eventDto.setViews(countViews(event.getId(), event.getCreatedOn(), LocalDateTime.now()));
+                    return eventDto;
+                })
                 .sorted((e1, e2) -> sort == null || sort.equals("EVENT_DATE") ? e1.getEventDate().compareTo(e2.getEventDate()) : e1.getViews().compareTo(e2.getViews()))
                 .collect(Collectors.toCollection(ArrayList::new));
     }
@@ -108,13 +99,11 @@ public class EventServiceImpl implements EventService {
         final User user = findUserById(userId);
         final Collection<Event> events = eventRepository.findAllByInitiatorId(user.getId(), PageRequest.of(from, size));
         return events.stream()
-                .map(event -> eventDtoMapper.mapToShortDto(
-                        event,
-                        categoryDtoMapper.mapToDto(event.getCategory()),
-                        userDtoMapper.mapToShortDto(event.getInitiator()),
-                        countViews(event.getId(), event.getCreatedOn(), LocalDateTime.now())
-
-                ))
+                .map(event -> {
+                    final EventShortDto eventDto = eventDtoMapper.mapToShortDto(event);
+                    eventDto.setViews(countViews(event.getId(), event.getCreatedOn(), LocalDateTime.now()));
+                    return eventDto;
+                })
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
@@ -122,14 +111,11 @@ public class EventServiceImpl implements EventService {
     public Collection<EventFullDto> findAllByAdmin(List<Long> users, List<String> states, List<Long> categories, String rangeStart, String rangeEnd, Integer from, Integer size) {
         final Collection<Event> events = eventRepository.findAllByAdmin(users, states, categories, rangeStart == null ? null : LocalDateTime.parse(rangeStart, formatter), rangeEnd == null ? null : LocalDateTime.parse(rangeEnd, formatter), (Pageable) PageRequest.of(from, size));
         return events.stream()
-                .map(event -> eventDtoMapper.mapToFullDto(
-                        event,
-                        categoryDtoMapper.mapToDto(event.getCategory()),
-                        locationDtoMapper.mapToDto(event.getLocation()),
-                        userDtoMapper.mapToShortDto(event.getInitiator()),
-                        countViews(event.getId(), event.getCreatedOn(), LocalDateTime.now())
-
-                ))
+                .map(event -> {
+                    final EventFullDto eventDto = eventDtoMapper.mapToFullDto(event);
+                    eventDto.setViews(countViews(event.getId(), event.getCreatedOn(), LocalDateTime.now()));
+                    return eventDto;
+                })
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
@@ -141,17 +127,13 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException("Event with id=" + eventId + " was not found");
         } else if (isPublic) {
             saveView(request);
-        } else {
+        } else if (userId != null) {
             findUserById(userId);
         }
 
-        return eventDtoMapper.mapToFullDto(
-                event,
-                categoryDtoMapper.mapToDto(event.getCategory()),
-                locationDtoMapper.mapToDto(event.getLocation()),
-                userDtoMapper.mapToShortDto(event.getInitiator()),
-                countViews(event.getId(), event.getCreatedOn(), LocalDateTime.now())
-        );
+        final EventFullDto eventDto = eventDtoMapper.mapToFullDto(event);
+        eventDto.setViews(countViews(event.getId(), event.getCreatedOn(), LocalDateTime.now()));
+        return eventDto;
     }
 
     @Override
@@ -165,17 +147,13 @@ public class EventServiceImpl implements EventService {
 
         final Category category = findCategoryById(eventDto.getCategory());
         final Location location = saveLocation(eventDto.getLocation());
-        eventDtoMapper.updateFromDto(event, eventDto, category, location);
+        eventDtoMapper.updateFromDto(event, eventDto);
 
         final Event updatedEvent = eventRepository.save(event);
 
-        return eventDtoMapper.mapToFullDto(
-                updatedEvent,
-                categoryDtoMapper.mapToDto(updatedEvent.getCategory()),
-                locationDtoMapper.mapToDto(updatedEvent.getLocation()),
-                userDtoMapper.mapToShortDto(updatedEvent.getInitiator()),
-                countViews(event.getId(), event.getCreatedOn(), LocalDateTime.now())
-        );
+        final EventFullDto updatedEventDto = eventDtoMapper.mapToFullDto(updatedEvent);
+        updatedEventDto.setViews(countViews(updatedEvent.getId(), updatedEvent.getCreatedOn(), LocalDateTime.now()));
+        return updatedEventDto;
     }
 
     @Override
@@ -187,20 +165,16 @@ public class EventServiceImpl implements EventService {
 
         final Category category = findCategoryById(eventDto.getCategory());
         final Location location = saveLocation(eventDto.getLocation());
-        eventDtoMapper.updateFromDto(event, eventDto, category, location);
+        eventDtoMapper.updateFromDto(event, eventDto);
         if (eventDto.getStateAction() != null && eventDto.getStateAction().equals(StateAction.PUBLISH_EVENT)) {
             event.setPublishedOn(LocalDateTime.now());
         }
 
         final Event updatedEvent = eventRepository.save(event);
 
-        return eventDtoMapper.mapToFullDto(
-                updatedEvent,
-                categoryDtoMapper.mapToDto(updatedEvent.getCategory()),
-                locationDtoMapper.mapToDto(updatedEvent.getLocation()),
-                userDtoMapper.mapToShortDto(updatedEvent.getInitiator()),
-                countViews(event.getId(), event.getCreatedOn(), LocalDateTime.now())
-        );
+        final EventFullDto updatedEventDto = eventDtoMapper.mapToFullDto(updatedEvent);
+        updatedEventDto.setViews(countViews(updatedEvent.getId(), updatedEvent.getCreatedOn(), LocalDateTime.now()));
+        return updatedEventDto;
     }
 
     @Override
